@@ -10,6 +10,8 @@ import os
 import sys
 import argparse
 
+import cclib as cclib
+
 
 def main():
     """
@@ -24,9 +26,19 @@ def main():
     - Write output file with all relevant data, recomputed and converted
     """
 
-    #
+    # Set up the script (logging, parse arguments, etc.)
     setup_logging()
     args = get_input_arguments()
+
+    # Parse input files
+    molecules = [get_coordinates(mol) for mol in args["input_files"]]
+
+
+def get_coordinates(gaussian_file):
+    """Retrieve coordinates from Gaussian calculation log file"""
+    file = cclib.io.ccread(gaussian_file)
+    data = file.parse()
+    return data.coordinates[-1]
 
 
 def help_description():
@@ -51,10 +63,13 @@ def get_input_arguments():
         ]
     )
 
+    # Basic parser setup
     parser = argparse.ArgumentParser(
         description=help_description(), epilog=help_epilog()
     )
     parser.formatter_class = argparse.RawDescriptionHelpFormatter
+
+    # Add arguments to parser
     parser.add_argument(
         "-i", "--input_files", type=str, nargs="+", help="List of files for which a single point is necessary"
     )
@@ -88,7 +103,7 @@ def get_input_arguments():
         sys.exit(2)
 
     # Setup file names
-    values["input_file"] = [os.path.abspath(i) for i in args.input_file]
+    values["input_files"] = [os.path.abspath(i) for i in args.input_file]
     logger.debug("Input files: %s", values["input_file"])
     values["output_file"] = os.path.abspath(args.output_file[0])
     logger.debug("Output file: %s", values["output_file"])
