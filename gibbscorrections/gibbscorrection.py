@@ -37,8 +37,7 @@ def main():
 def get_coordinates(gaussian_file):
     """Retrieve coordinates from Gaussian calculation log file"""
     file = cclib.io.ccread(gaussian_file)
-    data = file.parse()
-    return data.coordinates[-1]
+    return file.atomcoords[-1]
 
 
 def help_description():
