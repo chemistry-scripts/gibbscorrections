@@ -6,7 +6,7 @@ from gibbscorrections import gibbscorrection
 def test_get_coordinates():
     input_file = os.path.abspath("../data/gaussian_C6H6.log")
     benzene_coordinates = gibbscorrection.get_coordinates(input_file)
-    test_coords = np.array(
+    test_coordinates = np.array(
         [
             [1.632960e-01, -1.390546e00, 0.000000e00],
             [-1.122669e00, -8.366810e-01, 9.000000e-06],
@@ -22,7 +22,7 @@ def test_get_coordinates():
             [2.291202e00, -9.868870e-01, -9.000000e-06],
         ]
     )
-    assert np.array_equal(benzene_coordinates, test_coords)
+    assert np.array_equal(benzene_coordinates, test_coordinates)
 
 
 def test_get_input_arguments():
