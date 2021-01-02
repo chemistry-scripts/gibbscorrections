@@ -13,6 +13,7 @@ from pathlib import Path
 import cclib as cclib
 from cclib.parser.utils import PeriodicTable, convertor
 from gibbscorrections.molecule import Molecule
+from gibbscorrections.orca_job import OrcaJob
 
 
 def main():
@@ -45,9 +46,15 @@ def main():
             zip(list_filenames, list_coordinates, list_atom_lists)
         )
     ]
-    computations = [orca_inputs(mol) for mol in molecules]
+    # TODO: properly include all data in OrcaJob constructor
+    computations = [OrcaJob(molecule=mol) for mol in molecules]
 
     # Write orca files
+    [job.setup_computation() for job in computations]
+
+    # Run Orca
+    # TODO: parallelize
+    [job.run() for job in computations]
 
 
 def orca_inputs(molecule):
