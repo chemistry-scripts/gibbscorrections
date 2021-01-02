@@ -9,8 +9,11 @@ import logging
 import os
 import sys
 import argparse
+from pathlib import Path
 
 import cclib as cclib
+from cclib.parser.utils import PeriodicTable, convertor
+from gibbscorrections.molecule import Molecule
 
 
 def main():
@@ -31,13 +34,24 @@ def main():
     args = get_input_arguments()
 
     # Parse input files
-    molecules = [get_coordinates(mol) for mol in args["input_files"]]
+    list_coordinates = [get_coordinates(mol) for mol in args["input_files"]]
+    list_atom_lists = [get_atom_lists(mol) for mol in args["input_files"]]
+    list_filenames = [get_file_name(file) for file in args["input_files"]]
 
     # Setup orca computations
-    computations = [orca_inputs(mol, args["functional"], args["basisset"], filename) for (mol, filename) in enumerate(zip(molecules, args["input_files"]))]
+    molecules = [
+        # TODO: Add name to molecule or orca_job?
+        Molecule(coordinates, list_of_atoms)
+        for (name, coordinates, list_of_atoms) in enumerate(
+            zip(list_filenames, list_coordinates, list_atom_lists)
+        )
+    ]
+    computations = [orca_inputs(mol) for mol in molecules]
+
+    # Write orca files
 
 
-def orca_inputs(coordinates, functional, basisset, filename):
+def orca_inputs(molecule):
     """Setup orca input files"""
     pass
 
@@ -46,6 +60,20 @@ def get_coordinates(gaussian_file):
     """Retrieve coordinates from Gaussian calculation log file"""
     file = cclib.io.ccread(gaussian_file)
     return file.atomcoords[-1]
+
+
+def get_atom_lists(gaussian_file):
+    """Returns the list of atoms in the input order"""
+    file = cclib.io.ccread(gaussian_file)
+    atoms = file.atomnos.tolist()
+    periodic_table = PeriodicTable()
+    atom_list = [periodic_table.element[i] for i in atoms]
+    return atom_list
+
+
+def get_file_name(gaussian_file):
+    """Return file name (removes .log)"""
+    return os.path.splitext(gaussian_file)[0]
 
 
 def setup_logging():
@@ -85,7 +113,11 @@ def get_input_arguments():
 
     # Add arguments to parser
     parser.add_argument(
-        "-i", "--input_files", type=str, nargs="+", help="List of files for which a single point is necessary"
+        "-i",
+        "--input_files",
+        type=str,
+        nargs="+",
+        help="List of files for which a single point is necessary",
     )
     parser.add_argument(
         "-o",
