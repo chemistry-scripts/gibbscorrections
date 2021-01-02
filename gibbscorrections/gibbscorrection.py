@@ -6,7 +6,6 @@ A module that automatises the tedious process of retrieving a Gaussian 16 geomet
 point Orca calculation at that geometry. Of course, for a bunch of files at the same time.
 """
 import logging
-import os
 import sys
 import argparse
 from pathlib import Path
@@ -73,7 +72,7 @@ def get_atom_lists(gaussian_file):
 
 def get_file_name(gaussian_file):
     """Return file name (removes .log)"""
-    return os.path.splitext(gaussian_file)[0]
+    return Path(gaussian_file).with_suffix('')
 
 
 def setup_logging():
@@ -149,9 +148,10 @@ def get_input_arguments():
         sys.exit(2)
 
     # Setup file names
-    values["input_files"] = [os.path.abspath(i) for i in args.input_file]
+    # Todo: check validity of pathlib use (absolute?)
+    values["input_files"] = [Path(i) for i in args.input_file]
     logger.debug("Input files: %s", values["input_file"])
-    values["output_file"] = os.path.abspath(args.output_file[0])
+    values["output_file"] = Path(args.output_file[0])
     logger.debug("Output file: %s", values["output_file"])
 
     # Parse functional
