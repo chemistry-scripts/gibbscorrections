@@ -33,6 +33,14 @@ def main():
     # Parse input files
     molecules = [get_coordinates(mol) for mol in args["input_files"]]
 
+    # Setup orca computations
+    computations = [orca_inputs(mol, args["functional"], args["basisset"], filename) for (mol, filename) in enumerate(zip(molecules, args["input_files"]))]
+
+
+def orca_inputs(coordinates, functional, basisset, filename):
+    """Setup orca input files"""
+    pass
+
 
 def get_coordinates(gaussian_file):
     """Retrieve coordinates from Gaussian calculation log file"""
