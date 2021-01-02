@@ -48,12 +48,19 @@ def get_coordinates(gaussian_file):
     return file.atomcoords[-1]
 
 
-def help_description():
-    pass
+def setup_logging():
+    """Setup logging for module"""
+    # Setup logging
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
 
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(logging.DEBUG)
 
-def help_epilog():
-    pass
+    formatter = logging.Formatter("%(asctime)s :: %(levelname)s :: %(message)s")
+    stream_handler.setFormatter(formatter)
+
+    logger.addHandler(stream_handler)
 
 
 def get_input_arguments():
@@ -128,19 +135,12 @@ def get_input_arguments():
     return values
 
 
-def setup_logging():
-    """Setup logging for module"""
-    # Setup logging
-    logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
+def help_description():
+    pass
 
-    stream_handler = logging.StreamHandler()
-    stream_handler.setLevel(logging.DEBUG)
 
-    formatter = logging.Formatter("%(asctime)s :: %(levelname)s :: %(message)s")
-    stream_handler.setFormatter(formatter)
-
-    logger.addHandler(stream_handler)
+def help_epilog():
+    pass
 
 
 if __name__ == "__main__":
