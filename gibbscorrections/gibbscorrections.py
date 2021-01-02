@@ -79,7 +79,7 @@ def get_atom_lists(gaussian_file):
 
 def get_file_name(gaussian_file):
     """Return file name (removes .log)"""
-    return Path(gaussian_file).with_suffix('')
+    return Path(gaussian_file).stem
 
 
 def setup_logging():
