@@ -1,11 +1,11 @@
 import os
 import numpy as np
-from gibbscorrections import gibbscorrection
+from gibbscorrections import gibbscorrections
 
 
 def test_get_coordinates():
     input_file = os.path.abspath("../data/gaussian_C6H6.log")
-    benzene_coordinates = gibbscorrection.get_coordinates(input_file)
+    benzene_coordinates = gibbscorrections.get_coordinates(input_file)
     test_coordinates = np.array(
         [
             [1.632960e-01, -1.390546e00, 0.000000e00],
