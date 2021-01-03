@@ -12,8 +12,8 @@ from pathlib import Path
 
 import cclib as cclib
 from cclib.parser.utils import PeriodicTable, convertor
-from gibbscorrections.molecule import Molecule
-from gibbscorrections.orca_job import OrcaJob
+from molecule import Molecule
+from orca_job import OrcaJob
 
 
 def main():
@@ -42,8 +42,8 @@ def main():
     molecules = [
         # TODO: Add name to orca_job
         Molecule(coordinates, list_of_atoms)
-        for (name, coordinates, list_of_atoms) in enumerate(
-            zip(list_filenames, list_coordinates, list_atom_lists)
+        for (coordinates, list_of_atoms) in enumerate(
+            zip(list_coordinates, list_atom_lists)
         )
     ]
     # TODO: properly include all data in OrcaJob constructor
@@ -70,13 +70,13 @@ def get_orca_arguments(functional, basisset):
 
 def get_coordinates(gaussian_file):
     """Retrieve coordinates from Gaussian calculation log file"""
-    file = cclib.io.ccread(gaussian_file)
+    file = cclib.io.ccread(gaussian_file.resolve().as_posix())
     return file.atomcoords[-1]
 
 
 def get_atom_lists(gaussian_file):
     """Returns the list of atoms in the input order"""
-    file = cclib.io.ccread(gaussian_file)
+    file = cclib.io.ccread(gaussian_file.resolve().as_posix())
     atoms = file.atomnos.tolist()
     periodic_table = PeriodicTable()
     atom_list = [periodic_table.element[i] for i in atoms]
@@ -151,7 +151,7 @@ def get_input_arguments():
         "--basisset",
         type=str,
         nargs="?",
-        default="Def2TZVPP",
+        default="Def2-TZVPP",
         help="The basis set to use for all atoms",
     )
     try:
@@ -162,14 +162,13 @@ def get_input_arguments():
 
     # Setup file names
     # Todo: check validity of pathlib use (absolute?)
-    values["input_files"] = [Path(i) for i in args.input_file]
-    logger.debug("Input files: %s", values["input_file"])
+    values["input_files"] = [Path(i) for i in args.input_files]
+    logger.debug("Input files: %s", values["input_files"])
     values["output_file"] = Path(args.output_file[0])
     logger.debug("Output file: %s", values["output_file"])
 
     # Parse functional
-    functional = args.functional.split("-")
-    values["functional"] = functional[0]
+    values["functional"] = args.functional
     logger.debug("Functional: %s", values["functional"])
 
     # Parse basis set
