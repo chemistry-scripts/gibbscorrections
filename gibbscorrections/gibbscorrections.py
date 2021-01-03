@@ -40,7 +40,7 @@ def main():
 
     # Setup orca computations
     molecules = [
-        # TODO: Add name to molecule or orca_job?
+        # TODO: Add name to orca_job
         Molecule(coordinates, list_of_atoms)
         for (name, coordinates, list_of_atoms) in enumerate(
             zip(list_filenames, list_coordinates, list_atom_lists)
