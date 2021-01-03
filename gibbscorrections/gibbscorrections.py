@@ -47,7 +47,12 @@ def main():
         )
     ]
     # TODO: properly include all data in OrcaJob constructor
-    computations = [OrcaJob(molecule=mol) for mol in molecules]
+    basedir = Path().cwd()
+    orca_arguments = get_orca_arguments(args["functional"], args["basisset"])
+    computations = [
+        OrcaJob(molecule=mol, name=name, basedir=basedir, job_id=name, orca_args=orca_arguments)
+        for mol, name in enumerate(zip(molecules, list_filenames))
+    ]
 
     # Write orca files
     [job.setup_computation() for job in computations]
@@ -57,9 +62,10 @@ def main():
     [job.run() for job in computations]
 
 
-def orca_inputs(molecule):
-    """Setup orca input files"""
-    pass
+def get_orca_arguments(functional, basisset):
+    """Returns the required first line for a typical orca calculation using the functional and basisset provided"""
+    line = functional + " " + basisset + " " + basisset + "/c def2/j tightscf rijcosx GRID6"
+    return line
 
 
 def get_coordinates(gaussian_file):
@@ -137,15 +143,15 @@ def get_input_arguments():
         "--functional",
         type=str,
         nargs="?",
-        default="wB97MV",
-        help="Functional used for the computation, as wB97MV or M062X",
+        default="wB97M-V",
+        help="Functional used for the computation, as wB97M-V or M062X",
     )
     parser.add_argument(
         "-b",
         "--basisset",
         type=str,
         nargs="?",
-        default="Def2TZVP",
+        default="Def2TZVPP",
         help="The basis set to use for all atoms",
     )
     try:
