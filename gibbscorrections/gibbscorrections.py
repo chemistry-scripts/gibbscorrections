@@ -6,6 +6,7 @@ A module that automatises the tedious process of retrieving a Gaussian 16 geomet
 point Orca calculation at that geometry. Of course, for a bunch of files at the same time.
 """
 import logging
+import multiprocessing
 import sys
 import argparse
 from pathlib import Path
@@ -40,11 +41,9 @@ def main():
 
     # Setup orca computations
     molecules = [
-        # TODO: Add name to orca_job
         Molecule(coordinates, list_of_atoms)
         for coordinates, list_of_atoms in zip(list_coordinates, list_atom_lists)
     ]
-    # TODO: properly include all data in OrcaJob constructor
     basedir = Path().cwd()
     orca_arguments = get_orca_arguments(args["functional"], args["basisset"])
     computations = [
@@ -61,9 +60,14 @@ def main():
     # Write orca files
     [job.setup_computation() for job in computations]
 
-    # Run Orca
-    # TODO: parallelize
-    [job.run() for job in computations]
+    # Run Orca jobs in parallel
+    pool = multiprocessing.Pool(processes=multiprocessing.cpu_count())
+    orca_results = pool.map(run_jobs, computations)
+
+
+def run_jobs(job):
+    job.run()
+    return job
 
 
 def get_orca_arguments(functional, basisset):
