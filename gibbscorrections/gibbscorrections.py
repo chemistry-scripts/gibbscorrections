@@ -42,16 +42,15 @@ def main():
     molecules = [
         # TODO: Add name to orca_job
         Molecule(coordinates, list_of_atoms)
-        for (coordinates, list_of_atoms) in enumerate(
-            zip(list_coordinates, list_atom_lists)
-        )
+        for coordinates, list_of_atoms in zip(list_coordinates, list_atom_lists)
+
     ]
     # TODO: properly include all data in OrcaJob constructor
     basedir = Path().cwd()
     orca_arguments = get_orca_arguments(args["functional"], args["basisset"])
     computations = [
         OrcaJob(molecule=mol, name=name, basedir=basedir, job_id=name, orca_args=orca_arguments)
-        for mol, name in enumerate(zip(molecules, list_filenames))
+        for mol, name in zip(molecules, list_filenames)
     ]
 
     # Write orca files

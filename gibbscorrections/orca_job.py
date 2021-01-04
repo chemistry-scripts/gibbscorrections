@@ -232,9 +232,9 @@ class OrcaJob:
         header = list()
         header.append("%NProcShared=1")
         # header.append('%Mem=' + args['memory'])
-        route = "# " + self.Orca_args["functional"] + " "
-        if self.Orca_args["dispersion"] is not None:
-            route += "EmpiricalDispersion=" + self.Orca_args["dispersion"] + " "
+        route = "# " + self.orca_args["functional"] + " "
+        if self.orca_args["dispersion"] is not None:
+            route += "EmpiricalDispersion=" + self.orca_args["dispersion"] + " "
         route += "gen freq"
         header.append(route)
         header.append("")
@@ -261,7 +261,7 @@ class OrcaJob:
         elements = [periodic_table.element[el] for el in list(set(self.molecule.elements_list))]
 
         elements = " ".join(elements)
-        basisset = self.Orca_args["basisset"]
+        basisset = self.orca_args["basisset"]
         footer.append(elements + " 0")
         footer.append(basisset)
         footer.append("****")
