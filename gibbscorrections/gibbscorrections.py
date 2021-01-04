@@ -68,15 +68,8 @@ def main():
 
 def get_orca_arguments(functional, basisset):
     """Returns the required first line for a typical orca calculation using the functional and basisset provided"""
-    line = (
-        functional
-        + " "
-        + basisset
-        + " "
-        + basisset
-        + "/c def2/j tightscf rijcosx GRID6"
-    )
-    return line
+    orca_args = {"functional": functional, "basisset": basisset}
+    return orca_args
 
 
 def get_coordinates(gaussian_file):

@@ -5,9 +5,9 @@
 """Orca Job class to start job, run it and analyze it"""
 import logging
 import os
+from pathlib import Path
 import shutil
 from cclib.io import ccread
-from cclib.parser.utils import PeriodicTable
 
 
 class OrcaJob:
@@ -45,9 +45,7 @@ class OrcaJob:
         """
         Computation path, calculated at will as: /basedir/my_name.00job_id/
         """
-        path = os.path.join(
-            self.basedir, self.name.replace(" ", "_") + "." + str(self.job_id).zfill(8)
-        )
+        path = Path().joinpath(self.basedir, self.name)
         return path
 
     @property
@@ -92,9 +90,9 @@ class OrcaJob:
         return self.build_header()
 
     @property
-    def footer(self):
+    def geometry(self):
         """Computation footer"""
-        return self.build_footer()
+        return self.get_geometry_block()
 
     @property
     def orca_args(self):
@@ -116,7 +114,7 @@ class OrcaJob:
         logging.info("Starting Orca: %s", str(self.name))
         # Get into workdir, start Orca, then back to basedir
         os.chdir(self.path)
-        os.system("g16 < " + self.filenames["input"] + " > " + self.filenames["output"])
+        os.system("$ORCA_BIN_DIR/orca " + self.filenames["input"] + " > " + self.filenames["output"])
         os.chdir(self.basedir)
         # Log end of computation
         logging.info("Orca finished: %s", str(self.name))
@@ -126,47 +124,7 @@ class OrcaJob:
         """Extract NBO Charges parsing the output file."""
         # Log start
         logging.info("Parsing results from computation %s", str(self.job_id))
-
-        # Get into working directory
-        os.chdir(self.path)
-
-        # Initialize charges list
-        charges = []
-
-        with open(self.filenames["output"], mode="r") as out_file:
-            line = "Foobar line"
-            while line:
-                line = out_file.readline()
-                if "Summary of Natural Population Analysis:" in line:
-                    logging.debug("ID %s: Found NPA table.", str(self.job_id))
-                    # We have the table we want for the charges
-                    # Read five lines to remove the header:
-                    # Summary of Natural Population Analysis:
-                    #
-                    # Natural Population
-                    # Natural    ---------------------------------------------
-                    # Atom No    Charge        Core      Valence    Rydberg      Total
-                    # ----------------------------------------------------------------
-                    for _ in range(0, 5):
-                        out_file.readline()
-                    # Then we read the actual table:
-                    for _ in range(0, self.molecule.natoms):
-                        # Each line follow the header with the form:
-                        # C  1    0.92349      1.99948     3.03282    0.04422     5.07651
-                        line = out_file.readline()
-                        line = line.split()
-                        charges.append(line[2])
-                    logging.debug(
-                        "ID %s: Charges = %s",
-                        str(self.job_id),
-                        " ".join([str(i) for i in charges]),
-                    )
-                    # We have reached the end of the table, we can break the while loop
-                    break
-                # End of if 'Summary of Natural Population Analysis:'
-        # Get back to the base directory
-        os.chdir(self.basedir)
-        return charges
+        pass
 
     def get_coordinates(self):
         """Extract coordinates from output file."""
@@ -218,8 +176,8 @@ class OrcaJob:
         #  Return the parsed energies as a dictionary
         energies = dict.fromkeys(["scfenergy", "enthalpy", "freeenergy"])
         energies["scfenergy"] = data.scfenergies[-1]
-        energies["enthalpy"] = data.enthalpy
-        energies["freeenergy"] = data.freeenergy
+        energies["enthalpy"] = data.enthalpy if data.enthalpy else None
+        energies["freeenergy"] = data.freeenergy if data.freeenergy else None
 
         return energies
 
@@ -230,53 +188,31 @@ class OrcaJob:
         List of strings expected
         """
         header = list()
-        header.append("%NProcShared=1")
-        # header.append('%Mem=' + args['memory'])
-        route = "# " + self.orca_args["functional"] + " "
-        if self.orca_args["dispersion"] is not None:
-            route += "EmpiricalDispersion=" + self.orca_args["dispersion"] + " "
-        route += "gen freq"
-        header.append(route)
+        line = (
+                "! "
+                + self.orca_args["functional"]
+                + " "
+                + self.orca_args["basisset"]
+                + " "
+                + self.orca_args["basisset"]
+                + "/c def2/j tightscf rijcosx GRID6"
+        )
+        header.append(line)
         header.append("")
-        # To update probably
-        header.append(self.name)
-        header.append("")
-        # This is a singlet. Careful for other systems!
-        header.append("0 1")
-
         logging.debug("Header: \n %s", "\n".join(header))
         return header
 
-    def build_footer(self):
+    def get_geometry_block(self):
         """
-        Builds the bottom part used for the Orca calculation.
+        Builds the geometry block for Orca.
 
         List of strings.
         """
-        footer = []
-
-        # Basis set is the same for all elements. No ECP either.
-        # Remove duplicates, and convert to element name
-        periodic_table = PeriodicTable()
-        elements = [
-            periodic_table.element[el] for el in list(set(self.molecule.elements_list))
-        ]
-
-        elements = " ".join(elements)
-        basisset = self.orca_args["basisset"]
-        footer.append(elements + " 0")
-        footer.append(basisset)
-        footer.append("****")
-        footer.append("")
-
-        # footer.append("$NBO")
-        # # NBO_FILES should be updated to something more useful
-        # footer.append("FILE=NBO_FILES")
-        # footer.append("PLOT")
-        # footer.append("$END")
-
-        logging.debug("Footer: \n %s", "\n".join(footer))
-        return footer
+        block = ["* xyz 0 1"]
+        block.extend(self.molecule.xyz_geometry())
+        block.append("*")
+        logging.debug("Geometry block: \n %s", "\n".join(block))
+        return block
 
     def build_input_script(self):
         """Build full input script"""
@@ -284,15 +220,10 @@ class OrcaJob:
         # Put header
         script.extend(self.header)
 
-        # Add geometry + blank line
-        script.extend(self.molecule.xyz_geometry())
-        script.append("")
+        # Add geometry
+        script.extend(self.geometry)
 
-        # Add footer
-        script.extend(self.footer)
-
-        # Add two blank lines for the sake of Orca's weird behavior
-        script.append("")
+        # Add one blank line to finish file
         script.append("")
 
         return script
