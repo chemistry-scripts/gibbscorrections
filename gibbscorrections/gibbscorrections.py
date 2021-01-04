@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-"""Gibbs Correction
+"""
+Gibbs Correction
 
 A module that automatises the tedious process of retrieving a Gaussian 16 geometry, and setting up and running a single
 point Orca calculation at that geometry. Of course, for a bunch of files at the same time.
