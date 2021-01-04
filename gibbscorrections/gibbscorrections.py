@@ -12,7 +12,7 @@ import argparse
 from pathlib import Path
 
 import cclib as cclib
-from cclib.parser.utils import PeriodicTable, convertor
+from cclib.parser.utils import convertor
 from molecule import Molecule
 from orca_job import OrcaJob
 
@@ -38,6 +38,7 @@ def main():
     list_coordinates = [get_coordinates(mol) for mol in args["input_files"]]
     list_atom_lists = [get_atom_lists(mol) for mol in args["input_files"]]
     list_filenames = [get_file_name(file) for file in args["input_files"]]
+    list_energies = [get_energies(mol) for mol in args["input_files"]]
 
     # Setup orca computations
     molecules = [
@@ -64,10 +65,43 @@ def main():
     pool = multiprocessing.Pool(processes=multiprocessing.cpu_count())
     orca_results = pool.map(run_jobs, computations)
 
+    # Retrieve SCF energies
+    scf_energies = [result.get_energies()["scfenergy"] for result in orca_results]
+
+    # Print everything neatly to output file
+    print_results(args["output_file"], scf_energies, list_energies)
+
 
 def run_jobs(job):
     job.run()
     return job
+
+
+def print_results(out_file, scf_energies, list_energies):
+    """Print results from Orca calculations together with gaussian original results and corrected values"""
+    with open(out_file, mode="w") as outfile:
+        header = "Gaussian SCF\tGaussian H\tGaussian G\tOrca SCF\tOrca H\tOrca G"
+        outfile.write(header + "\n")
+        for orca_energy, gaussian_energies in zip(scf_energies, list_energies):
+            # Create all intermediate data to print
+            orca_freeenergy = orca_energy + gaussian_energies["freeenergy_correction"]
+            orca_enthalpy = orca_energy + gaussian_energies["enthalpy_correction"]
+
+            energies = [
+                gaussian_energies["scfenergy"],
+                gaussian_energies["enthalpy"],
+                gaussian_energies["freeenergy"],
+                orca_energy,
+                orca_enthalpy,
+                orca_freeenergy,
+            ]
+
+            # Convert to kcal/mol from Hartree
+            energies_kcal = [convertor(val, "eV", "kcal/mol") for val in energies]
+
+            # Create line
+            line = "\t".join(energies_kcal)
+            outfile.write(line + "\n")
 
 
 def get_orca_arguments(functional, basisset):
@@ -76,7 +110,32 @@ def get_orca_arguments(functional, basisset):
     return orca_args
 
 
-def get_coordinates(gaussian_file):
+def get_energies(comp_file):
+    """Retrieve energies from calculation log file"""
+    file = cclib.io.ccread(comp_file.resolve().as_posix())
+    energies = dict.fromkeys(
+        [
+            "scfenergy",
+            "enthalpy",
+            "freeenergy",
+            "enthalpy_correction",
+            "freeenergy_correction",
+        ]
+    )
+    energies["scfenergy"] = file.scfenergies[-1]
+    if file.enthalpy:
+        energies["enthalpy"] = file.enthalpy
+        energies["enthalpy_correction"] = energies["enthalpy"] - energies["scfenergy"]
+    if file.freeenergy:
+        energies["freeenergy"] = file.freeenergy
+        energies["freeenergy_correction"] = (
+            energies["freeenergy"] - energies["scfenergy"]
+        )
+
+    return energies
+
+
+def get_coordinates(comp_file):
     """Retrieve coordinates from Gaussian calculation log file"""
     file = cclib.io.ccread(gaussian_file.resolve().as_posix())
     return file.atomcoords[-1]
