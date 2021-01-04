@@ -249,16 +249,18 @@ class OrcaJob:
 
     def build_footer(self):
         """
-            Builds the bottom part used for the Orca calculation.
+        Builds the bottom part used for the Orca calculation.
 
-            List of strings.
-            """
+        List of strings.
+        """
         footer = []
 
         # Basis set is the same for all elements. No ECP either.
         # Remove duplicates, and convert to element name
         periodic_table = PeriodicTable()
-        elements = [periodic_table.element[el] for el in list(set(self.molecule.elements_list))]
+        elements = [
+            periodic_table.element[el] for el in list(set(self.molecule.elements_list))
+        ]
 
         elements = " ".join(elements)
         basisset = self.orca_args["basisset"]

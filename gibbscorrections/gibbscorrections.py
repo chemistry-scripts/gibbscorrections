@@ -43,13 +43,18 @@ def main():
         # TODO: Add name to orca_job
         Molecule(coordinates, list_of_atoms)
         for coordinates, list_of_atoms in zip(list_coordinates, list_atom_lists)
-
     ]
     # TODO: properly include all data in OrcaJob constructor
     basedir = Path().cwd()
     orca_arguments = get_orca_arguments(args["functional"], args["basisset"])
     computations = [
-        OrcaJob(molecule=mol, name=name, basedir=basedir, job_id=name, orca_args=orca_arguments)
+        OrcaJob(
+            molecule=mol,
+            name=name,
+            basedir=basedir,
+            job_id=name,
+            orca_args=orca_arguments,
+        )
         for mol, name in zip(molecules, list_filenames)
     ]
 
@@ -63,7 +68,14 @@ def main():
 
 def get_orca_arguments(functional, basisset):
     """Returns the required first line for a typical orca calculation using the functional and basisset provided"""
-    line = functional + " " + basisset + " " + basisset + "/c def2/j tightscf rijcosx GRID6"
+    line = (
+        functional
+        + " "
+        + basisset
+        + " "
+        + basisset
+        + "/c def2/j tightscf rijcosx GRID6"
+    )
     return line
 
 
