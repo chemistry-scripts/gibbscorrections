@@ -137,20 +137,20 @@ def get_energies(comp_file):
 
 def get_coordinates(comp_file):
     """Retrieve coordinates from Gaussian calculation log file"""
-    file = cclib.io.ccread(gaussian_file.resolve().as_posix())
+    file = cclib.io.ccread(comp_file.resolve().as_posix())
     return file.atomcoords[-1]
 
 
-def get_atom_lists(gaussian_file):
+def get_atom_lists(comp_file):
     """Returns the list of atoms in the input order"""
-    file = cclib.io.ccread(gaussian_file.resolve().as_posix())
+    file = cclib.io.ccread(comp_file.resolve().as_posix())
     atom_list = file.atomnos.tolist()
     return atom_list
 
 
-def get_file_name(gaussian_file):
+def get_file_name(file):
     """Return file name (removes .log)"""
-    return Path(gaussian_file).stem
+    return Path(file).stem
 
 
 def setup_logging():
