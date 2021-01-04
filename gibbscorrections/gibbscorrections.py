@@ -81,9 +81,7 @@ def get_coordinates(gaussian_file):
 def get_atom_lists(gaussian_file):
     """Returns the list of atoms in the input order"""
     file = cclib.io.ccread(gaussian_file.resolve().as_posix())
-    atoms = file.atomnos.tolist()
-    periodic_table = PeriodicTable()
-    atom_list = [periodic_table.element[i] for i in atoms]
+    atom_list = file.atomnos.tolist()
     return atom_list
 
 
