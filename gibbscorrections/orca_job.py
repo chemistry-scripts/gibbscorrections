@@ -189,7 +189,7 @@ class OrcaJob:
         """
         header = list()
         line = (
-                "! "
+                "! RKS "
                 + self.orca_args["functional"]
                 + " "
                 + self.orca_args["basisset"]
@@ -214,11 +214,20 @@ class OrcaJob:
         logging.debug("Geometry block: \n %s", "\n".join(block))
         return block
 
+    def get_solvation_block(self):
+        """Build solvation block command, with SMD model"""
+        block = ["! CPCM", "%cpcm", "smd True", "SMDSolvent \"" + self.orca_args["solvent"] + "\"", "end"]
+        return block
+
     def build_input_script(self):
         """Build full input script"""
         script = []
         # Put header
         script.extend(self.header)
+        
+        # Include solvent if it has been set
+        if self.orca_args["solvent"]:
+            script.extend(self.get_solvation_block())
 
         # Add geometry
         script.extend(self.geometry)
