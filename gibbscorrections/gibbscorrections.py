@@ -14,8 +14,8 @@ from pathlib import Path
 
 import cclib as cclib
 from cclib.parser.utils import convertor
-from molecule import Molecule
-from orca_job import OrcaJob
+from gibbscorrections.molecule import Molecule
+from gibbscorrections.orca_job import OrcaJob
 
 
 def main():
