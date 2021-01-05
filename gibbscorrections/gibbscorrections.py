@@ -98,7 +98,7 @@ def print_results(out_file, scf_energies, list_energies):
             ]
 
             # Convert to kcal/mol from Hartree
-            energies_kcal = [convertor(val, "eV", "kcal/mol") for val in energies]
+            energies_kcal = [str(convertor(val, "eV", "kcal/mol")) for val in energies]
 
             # Create line
             line = "\t".join(energies_kcal)

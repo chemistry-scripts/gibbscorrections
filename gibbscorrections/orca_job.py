@@ -176,8 +176,8 @@ class OrcaJob:
         #  Return the parsed energies as a dictionary
         energies = dict.fromkeys(["scfenergy", "enthalpy", "freeenergy"])
         energies["scfenergy"] = data.scfenergies[-1]
-        energies["enthalpy"] = data.enthalpy if data.enthalpy else None
-        energies["freeenergy"] = data.freeenergy if data.freeenergy else None
+        energies["enthalpy"] = data.enthalpy if hasattr(data, "enthalpy") else None
+        energies["freeenergy"] = data.freeenergy if hasattr(data, "freeenergy") else None
 
         return energies
 
