@@ -1,7 +1,7 @@
-import os
 import numpy as np
 import pytest
-from gibbscorrections import gibbscorrections
+from pathlib import Path
+from gibbscorrections import corrections
 from gibbscorrections.molecule import Molecule
 
 
@@ -26,8 +26,8 @@ def molecule_benzene():
 
 
 def test_get_coordinates(molecule_benzene):
-    input_file = os.path.abspath("../data/gaussian_C6H6.log")
-    benzene_coordinates = gibbscorrections.get_coordinates(input_file)
+    input_file = Path("../data/gaussian_C6H6.log")
+    benzene_coordinates = corrections.get_coordinates(input_file)
     test_coordinates = molecule_benzene.coordinates
     assert np.array_equal(benzene_coordinates, test_coordinates)
 

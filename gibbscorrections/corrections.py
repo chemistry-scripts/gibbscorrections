@@ -47,7 +47,7 @@ def main():
         for coordinates, list_of_atoms in zip(list_coordinates, list_atom_lists)
     ]
     basedir = Path().cwd()
-    orca_arguments = get_orca_arguments(args["functional"], args["basisset"])
+    orca_arguments = {key: value for key,value in args.items() if key in ["functional", "basisset", "solvent"]}
     computations = [
         OrcaJob(
             molecule=mol,
@@ -103,12 +103,6 @@ def print_results(out_file, scf_energies, list_energies):
             # Create line
             line = "\t".join(energies_kcal)
             outfile.write(line + "\n")
-
-
-def get_orca_arguments(functional, basisset):
-    """Returns the required first line for a typical orca calculation using the functional and basisset provided"""
-    orca_args = {"functional": functional, "basisset": basisset}
-    return orca_args
 
 
 def get_energies(comp_file):
@@ -180,6 +174,7 @@ def get_input_arguments():
             "output_file",
             "functional",
             "basisset",
+            "solvent"
         ]
     )
 
@@ -210,7 +205,7 @@ def get_input_arguments():
         type=str,
         nargs="?",
         default="wB97M-V",
-        help="Functional used for the computation, as wB97M-V or M062X",
+        help="Functional used for the computation, such as wB97M-V or M062X. See the Orca Manual for syntax.",
     )
     parser.add_argument(
         "-b",
@@ -218,7 +213,14 @@ def get_input_arguments():
         type=str,
         nargs="?",
         default="Def2-TZVPP",
-        help="The basis set to use for all atoms",
+        help="The basis set to use for all atoms. Not to change lightly, other basis sets not properly implemented.",
+    )
+    parser.add_argument(
+        "-s",
+        "--solvent",
+        type=str,
+        nargs="?",
+        help="Solvent to use with SMD Model, as described in the Orca user manual.",
     )
     try:
         args = parser.parse_args()
@@ -227,7 +229,6 @@ def get_input_arguments():
         sys.exit(2)
 
     # Setup file names
-    # Todo: check validity of pathlib use (absolute?)
     values["input_files"] = [Path(i) for i in args.input_files]
     logger.debug("Input files: %s", values["input_files"])
     values["output_file"] = Path(args.output_file[0])
@@ -240,6 +241,10 @@ def get_input_arguments():
     # Parse basis set
     values["basisset"] = args.basisset
     logger.debug("Basis set: %s", values["basisset"])
+
+    # Parse solvent
+    values["solvent"] = args.solvent
+    logger.debug("Solvent: %s", values["solvent"])
 
     # All values are retrieved, return the table
     return values

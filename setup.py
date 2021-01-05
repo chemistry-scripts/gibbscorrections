@@ -17,7 +17,7 @@ setup(
     zip_safe=False,
     entry_points={
         "console_scripts": [
-            "gibbscorrections=gibbscorrections:main",
+            "gibbscorrections=corrections:main",
         ]
     },
 )

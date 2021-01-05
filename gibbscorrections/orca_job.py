@@ -228,6 +228,7 @@ class OrcaJob:
         # Include solvent if it has been set
         if self.orca_args["solvent"]:
             script.extend(self.get_solvation_block())
+            script.append("")
 
         # Add geometry
         script.extend(self.geometry)

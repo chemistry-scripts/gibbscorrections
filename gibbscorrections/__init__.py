@@ -1,1 +1,1 @@
-from .gibbscorrections import *
+from .corrections import *
