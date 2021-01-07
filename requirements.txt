@@ -1,2 +1,2 @@
-setuptools~=51.0.0
-cclib~=1.6.4
+setuptools>=51.0.0
+cclib>=1.6.4
