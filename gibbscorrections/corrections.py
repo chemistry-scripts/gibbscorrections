@@ -70,7 +70,7 @@ def main():
     scf_energies = [result.get_energies()["scfenergy"] for result in orca_results]
 
     # Print everything neatly to output file
-    print_results(args["output_file"], scf_energies, list_energies, list_filenames)
+    print_results(Path(basedir, args["output_file"]), scf_energies, list_energies, list_filenames)
 
 
 def run_jobs(job):
