@@ -118,11 +118,11 @@ def get_energies(comp_file):
         ]
     )
     energies["scfenergy"] = file.scfenergies[-1]
-    if file.enthalpy:
-        energies["enthalpy"] = file.enthalpy
+    if hasattr(file, "enthalpy"):
+        energies["enthalpy"] = convertor(file.enthalpy, "hartree", "eV")
         energies["enthalpy_correction"] = energies["enthalpy"] - energies["scfenergy"]
-    if file.freeenergy:
-        energies["freeenergy"] = file.freeenergy
+    if hasattr(file, "freeenergy"):
+        energies["freeenergy"] = convertor(file.freeenergy, "hartree", "eV")
         energies["freeenergy_correction"] = (
             energies["freeenergy"] - energies["scfenergy"]
         )
