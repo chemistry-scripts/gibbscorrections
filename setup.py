@@ -7,8 +7,8 @@ long_description = (
 
 setup(
     name="gibbscorrections",
-    version="0.2.2",
-    description=long_description,
+    version="0.2.4",
+    long_description=long_description,
     url="http://github.com/chemistry-scripts/gibbscorrections",
     author="Emmanuel Nicolas",
     author_email="latruelle@users.noreply.github.com",
@@ -17,7 +17,7 @@ setup(
     zip_safe=False,
     entry_points={
         "console_scripts": [
-            "gibbscorrections=corrections:main",
+            "gibbscorrections=gibbscorrections:main",
         ]
     },
 )
