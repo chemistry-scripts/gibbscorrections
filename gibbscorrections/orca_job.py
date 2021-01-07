@@ -114,7 +114,12 @@ class OrcaJob:
         logging.info("Starting Orca: %s", str(self.name))
         # Get into workdir, start Orca, then back to basedir
         os.chdir(self.path)
-        os.system("$ORCA_BIN_DIR/orca " + self.filenames["input"] + " > " + self.filenames["output"])
+        os.system(
+            "$ORCA_BIN_DIR/orca "
+            + self.filenames["input"]
+            + " > "
+            + self.filenames["output"]
+        )
         os.chdir(self.basedir)
         # Log end of computation
         logging.info("Orca finished: %s", str(self.name))
@@ -177,7 +182,9 @@ class OrcaJob:
         energies = dict.fromkeys(["scfenergy", "enthalpy", "freeenergy"])
         energies["scfenergy"] = data.scfenergies[-1]
         energies["enthalpy"] = data.enthalpy if hasattr(data, "enthalpy") else None
-        energies["freeenergy"] = data.freeenergy if hasattr(data, "freeenergy") else None
+        energies["freeenergy"] = (
+            data.freeenergy if hasattr(data, "freeenergy") else None
+        )
 
         return energies
 
@@ -189,13 +196,13 @@ class OrcaJob:
         """
         header = list()
         line = (
-                "! RKS "
-                + self.orca_args["functional"]
-                + " "
-                + self.orca_args["basisset"]
-                + " "
-                + self.orca_args["basisset"]
-                + "/c def2/j tightscf rijcosx GRID6"
+            "! RKS "
+            + self.orca_args["functional"]
+            + " "
+            + self.orca_args["basisset"]
+            + " "
+            + self.orca_args["basisset"]
+            + "/c def2/j tightscf rijcosx GRID6"
         )
         header.append(line)
         header.append("")
@@ -216,7 +223,13 @@ class OrcaJob:
 
     def get_solvation_block(self):
         """Build solvation block command, with SMD model"""
-        block = ["! CPCM", "%cpcm", "smd True", "SMDSolvent \"" + self.orca_args["solvent"] + "\"", "end"]
+        block = [
+            "! CPCM",
+            "%cpcm",
+            "smd True",
+            'SMDSolvent "' + self.orca_args["solvent"] + '"',
+            "end",
+        ]
         return block
 
     def build_input_script(self):
@@ -224,7 +237,7 @@ class OrcaJob:
         script = []
         # Put header
         script.extend(self.header)
-        
+
         # Include solvent if it has been set
         if self.orca_args["solvent"]:
             script.extend(self.get_solvation_block())

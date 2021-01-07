@@ -47,7 +47,11 @@ def main():
         for coordinates, list_of_atoms in zip(list_coordinates, list_atom_lists)
     ]
     basedir = Path().cwd()
-    orca_arguments = {key: value for key,value in args.items() if key in ["functional", "basisset", "solvent"]}
+    orca_arguments = {
+        key: value
+        for key, value in args.items()
+        if key in ["functional", "basisset", "solvent"]
+    }
     computations = [
         OrcaJob(
             molecule=mol,
@@ -70,7 +74,9 @@ def main():
     scf_energies = [result.get_energies()["scfenergy"] for result in orca_results]
 
     # Print everything neatly to output file
-    print_results(Path(basedir, args["output_file"]), scf_energies, list_energies, list_filenames)
+    print_results(
+        Path(basedir, args["output_file"]), scf_energies, list_energies, list_filenames
+    )
 
 
 def run_jobs(job):
@@ -83,7 +89,9 @@ def print_results(out_file, scf_energies, list_energies, list_filenames):
     with open(out_file, mode="w") as outfile:
         header = "Name\tGaussian SCF\tGaussian H\tGaussian G\tOrca SCF\tOrca H\tOrca G"
         outfile.write(header + "\n")
-        for name, orca_energy, gaussian_energies in zip(list_filenames, scf_energies, list_energies):
+        for name, orca_energy, gaussian_energies in zip(
+            list_filenames, scf_energies, list_energies
+        ):
             # Create all intermediate data to print
             orca_freeenergy = orca_energy + gaussian_energies["freeenergy_correction"]
             orca_enthalpy = orca_energy + gaussian_energies["enthalpy_correction"]
@@ -169,13 +177,7 @@ def get_input_arguments():
 
     # List of values to extract
     values = dict.fromkeys(
-        [
-            "input_files",
-            "output_file",
-            "functional",
-            "basisset",
-            "solvent"
-        ]
+        ["input_files", "output_file", "functional", "basisset", "solvent"]
     )
 
     # Basic parser setup
