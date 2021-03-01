@@ -40,11 +40,13 @@ def main():
     list_atom_lists = [get_atom_lists(mol) for mol in args["input_files"]]
     list_filenames = [get_file_name(file) for file in args["input_files"]]
     list_energies = [get_energies(mol) for mol in args["input_files"]]
+    list_charges = [get_charge(mol) for mol in args["input_files"]]
+    list_multiplicities = [get_multiplicity(mol) for mol in args["input_files"]]
 
     # Setup orca computations
     molecules = [
-        Molecule(coordinates, list_of_atoms)
-        for coordinates, list_of_atoms in zip(list_coordinates, list_atom_lists)
+        Molecule(coordinates, list_of_atoms, charge, multiplicity)
+        for coordinates, list_of_atoms, charge, multiplicity in zip(list_coordinates, list_atom_lists, list_charges, list_multiplicities)
     ]
     basedir = Path().cwd()
     orca_arguments = {
@@ -142,6 +144,18 @@ def get_coordinates(comp_file):
     """Retrieve coordinates from Gaussian calculation log file"""
     file = cclib.io.ccread(comp_file.resolve().as_posix())
     return file.atomcoords[-1]
+
+
+def get_charge(comp_file):
+    """Retrieve charge from Gaussian calculation log file"""
+    file = cclib.io.ccread(comp_file.resolve().as_posix())
+    return file.charge
+
+
+def get_multiplicity(comp_file):
+    """Retrieve charge from Gaussian calculation log file"""
+    file = cclib.io.ccread(comp_file.resolve().as_posix())
+    return file.mult
 
 
 def get_atom_lists(comp_file):

@@ -215,7 +215,7 @@ class OrcaJob:
 
         List of strings.
         """
-        block = ["* xyz 0 1"]
+        block = ["* xyz " + str(self.molecule.charge) + " " + str(self.molecule.multiplicity)]
         block.extend(self.molecule.xyz_geometry())
         block.append("*")
         logging.debug("Geometry block: \n %s", "\n".join(block))

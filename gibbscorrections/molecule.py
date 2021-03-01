@@ -18,13 +18,15 @@ class Molecule:
 
     """
 
-    def __init__(self, coordinates, elements_list):
+    def __init__(self, coordinates, elements_list, charge, multiplicity):
         """Build  the Molecule class."""
         if not len(coordinates) == len(elements_list):
             raise ValueError("Coordinates and Elements are not the same size")
         self._coordinates = coordinates
         self._elements_list = elements_list
         self._natoms = len(elements_list)
+        self._charge = charge
+        self._multiplicity = multiplicity
 
     @property
     def coordinates(self):
@@ -56,6 +58,24 @@ class Molecule:
     @natoms.setter
     def natoms(self, value):
         self._natoms = value
+
+    @property
+    def charge(self):
+        """Return charge"""
+        return self._charge
+
+    @charge.setter
+    def charge(self, value):
+        self._charge = value
+
+    @property
+    def multiplicity(self):
+        """Return charge"""
+        return self._multiplicity
+
+    @multiplicity.setter
+    def multiplicity(self, value):
+        self._multiplicity = value
 
     def xyz_geometry(self):
         """Returns geometry in XYZ format"""

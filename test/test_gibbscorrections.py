@@ -22,7 +22,9 @@ def molecule_benzene():
         [2.000262e00, 1.490757e00, 3.000000e-06],
         [2.291202e00, -9.868870e-01, -9.000000e-06],
     ]
-    return Molecule(coordinates, elements_list)
+    charge = 0
+    mult = 1
+    return Molecule(coordinates, elements_list, charge, mult)
 
 
 def test_get_coordinates(molecule_benzene):

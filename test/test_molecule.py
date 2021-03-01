@@ -12,7 +12,7 @@ import pytest
 def molecule_hydrogen():
     elements_list = [1, 1]
     coordinates = [[0.0000, 0.0000, 0.0000], [0.0000, 0.0000, 0.7400]]
-    return Molecule(coordinates, elements_list)
+    return Molecule(coordinates, elements_list, 0, 1)
 
 
 @pytest.fixture
@@ -25,7 +25,7 @@ def molecule_platinum_hydride():
         [-0.540815069, 1.4475266138, -0.8766437152],
         [-0.5238136345, 1.4379326443, 0.9063972942],
     ]
-    return Molecule(coordinates, elements_list)
+    return Molecule(coordinates, elements_list, 0, 1)
 
 
 def test_xyz_geometry(molecule_hydrogen, molecule_platinum_hydride):
