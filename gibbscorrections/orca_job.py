@@ -206,6 +206,8 @@ class OrcaJob:
         )
         header.append(line)
         header.append("")
+        header.append("%pal nprocs 4 end")
+        header.append("")
         logging.debug("Header: \n %s", "\n".join(header))
         return header
 

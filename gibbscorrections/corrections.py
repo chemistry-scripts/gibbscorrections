@@ -8,6 +8,7 @@ point Orca calculation at that geometry. Of course, for a bunch of files at the 
 """
 import logging
 import multiprocessing
+import os
 import sys
 import argparse
 from pathlib import Path
@@ -46,7 +47,9 @@ def main():
     # Setup orca computations
     molecules = [
         Molecule(coordinates, list_of_atoms, charge, multiplicity)
-        for coordinates, list_of_atoms, charge, multiplicity in zip(list_coordinates, list_atom_lists, list_charges, list_multiplicities)
+        for coordinates, list_of_atoms, charge, multiplicity in zip(
+            list_coordinates, list_atom_lists, list_charges, list_multiplicities
+        )
     ]
     basedir = Path().cwd()
     orca_arguments = {
@@ -69,7 +72,9 @@ def main():
     [job.setup_computation() for job in computations]
 
     # Run Orca jobs in parallel
-    pool = multiprocessing.Pool(processes=multiprocessing.cpu_count())
+    # ncpu is the number of cpus available, minus 1 for python. Then, each orca run uses 4 cores, and we round.
+    n_jobs = int((int(os.environ["SLURM_JOB_CPUS_PER_NODE"]) - 1) / 4)
+    pool = multiprocessing.Pool(processes=n_jobs)
     orca_results = pool.map(run_jobs, computations)
 
     # Retrieve SCF energies
