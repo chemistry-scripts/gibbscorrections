@@ -7,7 +7,7 @@ long_description = (
 
 setup(
     name="gibbscorrections",
-    version="0.3.0",
+    version="0.4.0",
     long_description=long_description,
     long_description_content_type="text/plain",
     url="http://github.com/chemistry-scripts/gibbscorrections",
