@@ -73,7 +73,7 @@ def main():
 
     # Run Orca jobs in parallel
     # ncpu is the number of cpus available, minus 1 for python. Then, each orca run uses 4 cores, and we round.
-    n_jobs = int((int(os.environ["SLURM_JOB_CPUS_PER_NODE"]) - 1) / 4)
+    n_jobs = int((int(os.environ["SLURM_JOB_CPUS_PER_NODE"])/2 - 1) / 4)
     pool = multiprocessing.Pool(processes=n_jobs)
     orca_results = pool.map(run_jobs, computations)
 
