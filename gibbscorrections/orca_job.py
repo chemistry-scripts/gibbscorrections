@@ -15,12 +15,12 @@ class OrcaJob:
     Class that can be used as a container for Orca jobs.
 
     Attributes:
-        - basedir (base directory, os.path object)
+        - basedir (base directory, os path object)
         - name (name of computation, string)
         - coordinates (list of XYZ coordinates)
         - job_id (unique identifier, int)
-        - natoms (number of atoms, int)
-        - path (path in which to run current computation, os.path object)
+        - n_atoms (number of atoms, int)
+        - path (path in which to run current computation, os path object)
         - filenames (dict with input, (file_name.com, str)
                                output, (file_name.log, str)
                     )
@@ -50,7 +50,7 @@ class OrcaJob:
 
     @property
     def molecule(self):
-        """Molecule specification (coords, natoms, etc)"""
+        """Molecule specification (coordinates, n_atoms, etc)"""
         return self._molecule
 
     @molecule.setter
@@ -112,18 +112,31 @@ class OrcaJob:
         """Start the job."""
         # Log computation start
         logging.info("Starting Orca: %s", str(self.name))
-        # Get into workdir, start Orca, then back to basedir
+        # Get into workdir, if computation not already done start Orca, then back to basedir
         os.chdir(self.path)
-        os.system(
-            "$ORCA_BIN_DIR/orca "
-            + self.filenames["input"]
-            + " > "
-            + self.filenames["output"]
-        )
+        if self.computation_finished():
+            logging.info("Orca was not started: %s was already computed", str(self.name))
+        else:
+            os.system(
+                "$ORCA_BIN_DIR/orca "
+                + self.filenames["input"]
+                + " > "
+                + self.filenames["output"]
+            )
+            logging.info("Orca finished: %s", str(self.name))
         os.chdir(self.basedir)
         # Log end of computation
         logging.info("Orca finished: %s", str(self.name))
         return
+
+    def computation_finished(self):
+        """Check if computation in current directory is finished."""
+        if os.path.isfile(self.filenames["output"]):
+            with open(self.filenames["output"], "r") as out_file:
+                for line in out_file.readlines():
+                    if "****ORCA TERMINATED NORMALLY****" in line:
+                        return True
+        return False
 
     def extract_natural_charges(self):
         """Extract NBO Charges parsing the output file."""
@@ -202,7 +215,7 @@ class OrcaJob:
             + self.orca_args["basisset"]
             + " "
             + self.orca_args["basisset"]
-            + "/c def2/j tightscf rijcosx GRID6"
+            + "/c def2/j tightscf rijcosx"
         )
         header.append(line)
         header.append("")
