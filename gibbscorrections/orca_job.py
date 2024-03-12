@@ -15,12 +15,12 @@ class OrcaJob:
     Class that can be used as a container for Orca jobs.
 
     Attributes:
-        - basedir (base directory, os path object)
+        - basedir (base directory, os.path object)
         - name (name of computation, string)
         - coordinates (list of XYZ coordinates)
         - job_id (unique identifier, int)
-        - n_atoms (number of atoms, int)
-        - path (path in which to run current computation, os path object)
+        - natoms (number of atoms, int)
+        - path (path in which to run current computation, os.path object)
         - filenames (dict with input, (file_name.com, str)
                                output, (file_name.log, str)
                     )
@@ -50,7 +50,7 @@ class OrcaJob:
 
     @property
     def molecule(self):
-        """Molecule specification (coordinates, n_atoms, etc)"""
+        """Molecule specification (coords, natoms, etc)"""
         return self._molecule
 
     @molecule.setter
@@ -209,13 +209,13 @@ class OrcaJob:
         """
         header = list()
         line = (
-            "! RKS "
-            + self.orca_args["functional"]
-            + " "
-            + self.orca_args["basisset"]
-            + " "
-            + self.orca_args["basisset"]
-            + "/c def2/j tightscf rijcosx"
+                "! RKS "
+                + self.orca_args["functional"]
+                + " "
+                + self.orca_args["basisset"]
+                + " "
+                + self.orca_args["basisset"]
+                + "/c def2/j tightscf rijcosx"
         )
         header.append(line)
         header.append("")
